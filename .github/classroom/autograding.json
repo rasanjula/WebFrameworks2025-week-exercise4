@@ -1,0 +1,14 @@
+{
+    "tests": [
+      {
+        "name": "Validation tests",
+        "setup": "npm install",
+        "run": "npm test",
+        "input": "",
+        "output": "",
+        "comparison": "exact",
+        "timeout": 2,
+        "points": 1
+      }
+    ]
+  }
