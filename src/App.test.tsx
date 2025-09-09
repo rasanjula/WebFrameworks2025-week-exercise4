@@ -1,7 +1,7 @@
 import { render, screen, within, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 //import "@testing-library/jest-dom/extend-expect";
-import { BrowserRouter, MemoryRouter } from "react-router-dom";
+import { BrowserRouter, MemoryRouter } from "react-router";
 import App from "./App";
 import { getAllProducts, getProductById } from "./products";
 

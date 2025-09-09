@@ -4,7 +4,7 @@ import { getProductById } from "../products";
 const ProductDetailsView = () => {
   // Replace this static product id with a dynamic one retrieved from the router
   // See documentation on how to retrieve the id from the router
-  // https://reactrouter.com/en/main/route/route#dynamic-segments
+  // https://reactrouter.com/start/declarative/routing#dynamic-segments
   const id = 1;
 
   // getProductById is a function to fetch product details from the products.js file.
