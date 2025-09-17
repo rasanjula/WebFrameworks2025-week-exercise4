@@ -69,7 +69,7 @@ Paths to implement:
 - `/products/:id` should render the `ProductDetailsView` component.
 - `/cart` should render the `CartView` component.
 
-Notice that the path to the single product view contains a dynamic segment `:id` that is used to identify the product. The `ProductDetailsView` component uses the `getProductById(id)` function to get the product data. You can read more about dynamic segments in the [React Router documentation](https://reactrouter.com/en/main/route/route#dynamic-segments). Notice especially the meaining of `:` caracter in the path and how to access the dynamic segment id value in the component with the useParams hook.
+Notice that the path to the single product view contains a dynamic segment `:id` that is used to identify the product. The `ProductDetailsView` component uses the `getProductById(id)` function to get the product data. You can read more about dynamic segments in the [React Router documentation](https://reactrouter.com/start/data/routing#dynamic-segments). Notice especially the meaining of `:` caracter in the path and how to access the dynamic segment id value in the component with the useParams hook.
 
 ## Task 2: Add a link to the single product view
 
