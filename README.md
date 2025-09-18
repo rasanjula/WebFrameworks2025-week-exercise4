@@ -22,7 +22,7 @@ Here is how the application should look like when finished.
 
 In the application there are four react components:
 
-- `App` is the root component that renders the navigation bar AND SHOULD IMPLEMENT THE ROUTING with Routes and Route components, but must not use BrowserRouter or any other router. The router will be initialized by the tests. 
+- `App` is the root component that renders the navigation bar AND SHOULD IMPLEMENT THE ROUTING by using React Router v7 data mode ([text](https://reactrouter.com/start/data/routing))
 - `ProductsView` It renders the list of products. Each product is rendered using the `Product` component. It is the view that should be rendered when the user navigates to the root path `/`.
 - `Product` is the component that renders a single product is used by `ProductsView`. It renders the product name and should render a router link to the single product view. It is used by the `ProductsView` component.
 - `ProductDetailsView` is the component that renders a single product view. It renders the product details and should render a router link to the list of products. It is the view that should be rendered when the user navigates to the `/products/:id` path.
