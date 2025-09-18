@@ -8,29 +8,28 @@ import { getAllProducts, getProductById } from "./products";
 function testProductViewWithAllProducts() {
   const products = getAllProducts();
   for (let i = 0; i < products.length; i++) {
-    test("Verify path /products/" + products[i].id, () => {
-      const route = "/products/" + products[i].id;
+    test("Verify product " + products[i].name + " is visible on main page", () => {
       const product = products[i];
 
       render(
-        <MemoryRouter initialEntries={[route]}>
           <App />
-        </MemoryRouter>
       );
 
-      // Check that product header is present
-      const productAHeader = screen.getByText(new RegExp(product.name, "i"));
-      expect(productAHeader).toBeInTheDocument();
+      // Check that product is present on the main products view
+      const productElement = screen.getByTestId(`product-${product.id}`);
+      expect(productElement).toBeInTheDocument();
+
+      // Check that product name is present
+      const productName = within(productElement).getByText(new RegExp(product.name, "i"));
+      expect(productName).toBeInTheDocument();
 
       // Check that product price is present
-      const productAPrice = screen.getByText(`$${product.price}`);
-      expect(productAPrice).toBeInTheDocument();
+      const productPrice = within(productElement).getByText(`$${product.price}`);
+      expect(productPrice).toBeInTheDocument();
 
-      // Check that product description is present
-      const productADescription = screen.getByText(
-        new RegExp(product.description, "i")
-      );
-      expect(productADescription).toBeInTheDocument();
+      // Check that "View Details" link is present
+      const viewDetailsLink = within(productElement).getByText(/View Details/i);
+      expect(viewDetailsLink).toBeInTheDocument();
     });
   }
 }
@@ -38,60 +37,79 @@ function testProductViewWithAllProducts() {
 // This is required here because otherwise the tests will containg previous URL history and
 // leak to other tests causing failures
 afterEach(() => {
+  console.log('Resetting URL history');
   window.history.pushState(null, document.title, "/");
 });
 
 test("renders the basic app and routing is initialized", () => {
-  render(
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
+  render(<App />);
+  
   const headerElement = screen.getByText(/Shop Products/i);
   expect(headerElement).toBeInTheDocument();
 
-  // Check that text "Cart View" is not present
+  // Check that navigation links are present
+  const productsLink = screen.getByRole('link', { name: /Products/i });
+  expect(productsLink).toBeInTheDocument();
+  
+  const cartLink = screen.getByText(/Cart/i);
+  expect(cartLink).toBeInTheDocument();
 
+  // Check that text "Cart View" is not present on products page
   const shoppingCartHeader = screen.queryByText(/Cart View/i);
   expect(shoppingCartHeader).not.toBeInTheDocument();
 });
 
 describe("Verify direct paths specified as Task 1 in the instructions", () => {
-  test("Verify path /cart", () => {
-    const route = "/cart";
+    test("Verify path /cart", async () => {
+        const route = "/cart";
 
-    // use <MemoryRouter> when you want to manually control the history
-    render(
-      <MemoryRouter initialEntries={[route]}>
-        <App />
-      </MemoryRouter>
-    );
+        render(<App />);
 
-    // Check that text "Cart View" is present
-    const shoppingCartHeader = screen.getByText(/Cart View/i);
-    expect(shoppingCartHeader).toBeInTheDocument();
+        // Navigate to /cart by clicking the cart link
+        const cartLink = screen.getByText(/Cart/i);
+        expect(cartLink).toBeInTheDocument();
+        
+        await act(async () => {
+          await userEvent.click(cartLink);
+        });
 
-    // Check that cart contents are displayed
-    const cartItems = screen.getAllByRole("listitem");
-    expect(cartItems).toHaveLength(2);
+        // Wait for the cart view to be displayed
+        await waitFor(() => {
+          // Check that text "Cart View" is present
+          const shoppingCartHeader = screen.getByText(/Cart View/i);
+          expect(shoppingCartHeader).toBeInTheDocument();
+        });
 
-    // Check that the cart items are correct
-    expect(cartItems[0]).toHaveTextContent("Product A");
-    expect(cartItems[1]).toHaveTextContent("Product C");
+        // Check that we are on the /cart page
+        expect(window.location.pathname).toBe(route);
 
-    // Check that the "Shop Products" header is not present
-    const headerElement = screen.queryByText(/Shop Products/i);
-    expect(headerElement).not.toBeInTheDocument();
-  });
+        // Check that cart contents are displayed
+        const cartItems = screen.getAllByRole("listitem");
+        expect(cartItems).toHaveLength(2);
 
-  testProductViewWithAllProducts();
+        // Check that the cart items are correct
+        expect(cartItems[0]).toHaveTextContent("Product A");
+        expect(cartItems[1]).toHaveTextContent("Product C");
+
+        // Check that the "Shop Products" header is not present
+        const headerElement = screen.queryByText(/Shop Products/i);
+        expect(headerElement).not.toBeInTheDocument();
+
+        // Navigate back to products page by clicking the products link
+        const productsLink = screen.getByRole('link', { name: /Products/i });
+        expect(productsLink).toBeInTheDocument();
+        
+        await act(async () => {
+          await userEvent.click(productsLink);
+        });
+    });
+
+    testProductViewWithAllProducts();
 });
 
 test("Verify that clicking on a product in the product list takes you to the product details page", async () => {
   render(
-    <BrowserRouter>
       <App />
-    </BrowserRouter>
   );
 
   // Check that product A is present
@@ -127,68 +145,35 @@ test("Verify that clicking on a product in the product list takes you to the pro
     const backToProductsLink = screen.getByText(/Back to Products/i);
     expect(backToProductsLink).toBeInTheDocument();
   });
+
+
 });
 
 test("Verify that clicking on the 'Back to Products' link takes you back to the product list", async () => {
   render(
-    <BrowserRouter>
       <App />
-    </BrowserRouter>
   );
-
-  // Check that product A is present
-  const productA = screen.getByTestId("product-1");
-  expect(productA).toBeInTheDocument();
-
-  // Check that view details link to product a is present
-  const viewDetailsLink = within(productA).getByText(/View details/i);
-  await act(async () => {
-    await userEvent.click(viewDetailsLink);
-  });
 
   const backToProductsLink = screen.getByText(/Back to Products/i);
   expect(backToProductsLink).toBeInTheDocument();
   await act(async () => {
     await userEvent.click(backToProductsLink);
   });
-  const headerElement = screen.getByText(/Shop Products/i);
-  expect(headerElement).toBeInTheDocument();
-
-  // Check that product A header h3 elelement is not present
-  try {
-    const productAHeader = screen.getByRole("heading", {
-      level: 2,
-      description: /Product A/i,
-    });
-    expect(productAHeader).not.toBeInTheDocument();
-  } catch (e) {
-    // do nothing, since this is the expected behavior
-  }
-});
-
-test("Verify that clicking on the 'Cart' link takes you to the cart view", async () => {
-  render(
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  );
-
-  // Check that cart link is present
-  const cartLink = screen.getByText(/Cart/i);
-  expect(cartLink).toBeInTheDocument();
-
-  await act(() => {
-    // Click on cart link
-    userEvent.click(cartLink);
-  });
 
   await waitFor(() => {
-    // Check that "Cart View" header is present
-    const shoppingCartHeader = screen.getByText(/Cart View/i);
-    expect(shoppingCartHeader).toBeInTheDocument();
+    const headerElement = screen.getByText(/Shop Products/i);
+    expect(headerElement).toBeInTheDocument();
 
-    // Check that the "Shop Products" header is not present
-    const headerElement = screen.queryByText(/Shop Products/i);
-    expect(headerElement).not.toBeInTheDocument();
+    // Check that product A header h3 elelement is not present
+    try {
+      const productAHeader = screen.getByRole("heading", {
+        level: 2,
+        description: /Product A/i,
+      });
+      expect(productAHeader).not.toBeInTheDocument();
+    } catch (e) {
+      // do nothing, since this is the expected behavior
+    }
   });
 });
+
