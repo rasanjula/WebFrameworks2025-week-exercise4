@@ -1,7 +1,5 @@
 import { render, screen, within, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-//import "@testing-library/jest-dom/extend-expect";
-import { BrowserRouter, MemoryRouter } from "react-router";
 import App from "./App";
 import { getAllProducts, getProductById } from "./products";
 
@@ -135,9 +133,9 @@ test("Verify that clicking on a product in the product list takes you to the pro
     expect(productAHeader).toBeInTheDocument();
 
     // Check that product A category is present
-    const expectedCateogry = getProductById(1).category;
+    const expectedCategory = getProductById(1).category;
     const productACategory = screen.getByText(
-      new RegExp(expectedCateogry, "i")
+      new RegExp(expectedCategory, "i")
     );
     expect(productACategory).toBeInTheDocument();
 
@@ -154,26 +152,40 @@ test("Verify that clicking on the 'Back to Products' link takes you back to the 
       <App />
   );
 
-  const backToProductsLink = screen.getByText(/Back to Products/i);
-  expect(backToProductsLink).toBeInTheDocument();
-  await act(async () => {
-    await userEvent.click(backToProductsLink);
+  // Check that product B is present
+  const productA = screen.getByTestId("product-2");
+  expect(productA).toBeInTheDocument();
+
+  // Check that view details link to product B is present
+  const viewDetailsLink = within(productA).getByText(/View details/i);
+
+  await act(() => {
+    // Click on product B
+    userEvent.click(viewDetailsLink);
   });
 
   await waitFor(() => {
-    const headerElement = screen.getByText(/Shop Products/i);
-    expect(headerElement).toBeInTheDocument();
+    // Check that product B header is present
+    const productAHeader = screen.getByText(/Product B/i);
+    expect(productAHeader).toBeInTheDocument();
+    
 
-    // Check that product A header h3 elelement is not present
-    try {
-      const productAHeader = screen.getByRole("heading", {
-        level: 2,
-        description: /Product A/i,
-      });
-      expect(productAHeader).not.toBeInTheDocument();
-    } catch (e) {
-      // do nothing, since this is the expected behavior
-    }
+    // Check that "Back to Products" link is present
+    const backToProductsLink = screen.getByText(/Back to Products/i);
+    expect(backToProductsLink).toBeInTheDocument();    
   });
+
+  // click on the back to products link
+  await act(() => {
+    const backToProductsLink = screen.getByText(/Back to Products/i);
+    expect(backToProductsLink).toBeInTheDocument();    
+    // Click on product B
+      userEvent.click(backToProductsLink);
+    });
+
+  await waitFor(() => {
+      const headerElement = screen.getByText(/Shop Products/i);
+      expect(headerElement).toBeInTheDocument();
+    });
 });
 
