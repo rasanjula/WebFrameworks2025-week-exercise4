@@ -1,27 +1,30 @@
-import React from "react";
+// src/components/ProductsView.tsx
 import styles from "./ProductsView.module.css";
-import { getAllProducts } from "../products";
 import Product from "./Product";
+// Import the whole module so we support both named and default exports
+import * as ProductsModule from "../products";
 
-const ProductsView = () => {
-  const products = getAllProducts();
+const getAll =
+  (ProductsModule as any).getAllProducts ??
+  (ProductsModule as any).default?.getAllProducts;
+
+export default function ProductsView() {
+  const products = getAll ? getAll() : [];
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Shop Products</h1>
       <div className={styles.products}>
-        {products.map((product) => (
+        {products.map((p: any) => (
           <Product
-            key={product.id}
-            name={product.name}
-            id={product.id}
-            price={product.price}
+            key={p.id}
+            id={p.id}
+            name={p.name}
+            price={p.price}
             imagePath="http://via.placeholder.com/200x200"
           />
         ))}
       </div>
     </div>
   );
-};
-
-export default ProductsView;
+}

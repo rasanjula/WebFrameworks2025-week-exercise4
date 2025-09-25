@@ -1,29 +1,25 @@
-import React from "react";
+// src/App.tsx
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ProductsView from "./components/ProductsView";
 import ProductDetailsView from "./components/ProductDetailsView";
 import CartView from "./components/CartView";
+import "./App.css";
 
-const App = () => {
+export default function App() {
   return (
-    <div>
-      <nav>
-        {/* Replace anchor elements with router Link */}
-        <a href="#">Products</a>
-        <a href="#">Cart</a>
+    <BrowserRouter>
+      {/* Always-visible top menu */}
+      <nav style={{ padding: "12px", background: "#f0f0f0" }}>
+        <Link to="/" style={{ marginRight: 12 }}>Products</Link>
+        <Link to="/cart">Cart</Link>
       </nav>
 
-      {/* Add react router routes here. See Router documentation how to define dynamic route segments:
-          https://reactrouter.com/start/data/routing#dynamic-segments
-
-          The idea is to have access to the product details with routes such as /products/1, /products/2, etc.where
-          the last segment is the product id. 
-          The id can then be used to fetch the product details in the ProductDetailsView component.
-      */}
-      <ProductsView />
-      <ProductDetailsView />
-      <CartView />
-    </div>
+      {/* Routes */}
+      <Routes>
+        <Route path="/" element={<ProductsView />} />
+        <Route path="/products/:id" element={<ProductDetailsView />} />
+        <Route path="/cart" element={<CartView />} />
+      </Routes>
+    </BrowserRouter>
   );
-};
-
-export default App;
+}

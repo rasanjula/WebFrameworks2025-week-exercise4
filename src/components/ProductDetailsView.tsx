@@ -1,18 +1,30 @@
-import React from "react";
-import { getProductById } from "../products";
+// src/components/ProductDetailsView.tsx
+import { useParams, Link } from "react-router-dom";
+// Import the whole module so we can support both named and default exports
+import * as ProductsModule from "../products";
 
-const ProductDetailsView = () => {
-  // Replace this static product id with a dynamic one retrieved from the router
-  // See documentation on how to retrieve the id from the router
-  // https://reactrouter.com/start/declarative/routing#dynamic-segments
-  const id = 1;
+// Safe accessors that work whether products.js uses named OR default exports
+const getById =
+  (ProductsModule as any).getProductById ??
+  (ProductsModule as any).default?.getProductById;
 
-  // getProductById is a function to fetch product details from the products.js file.
-  // In a real application, this would be an API call to the backend.
-  const product = getProductById(id);
+export default function ProductDetailsView() {
+  // Type the param so TS knows it's string | undefined
+  const { id } = useParams<{ id: string }>();
+
+  const product = id ? getById?.(id) ?? null : null;
+
+  if (!product) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>Product Not Found</h2>
+        <Link to="/">Back to Products</Link>
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>{product.name}</h2>
       <div style={{ display: "flex" }}>
         <div style={{ marginRight: "20px" }}>
@@ -24,18 +36,17 @@ const ProductDetailsView = () => {
           <p>Category: {product.category}</p>
           <p>In Stock: {product.stock} pcs</p>
           <p>Rating: {product.rating} / 5.0</p>
+
+          {/* Static button per assignment */}
           <div style={{ marginTop: "20px" }}>
-            {/* No functionality is required for this button */}
-            <button>Add to Cart</button>{" "}
+            <button>Add to Cart</button>
           </div>
+
           <div style={{ marginTop: "20px" }}>
-            {/* Replace anchor element with router Link */}
-            <a href="#">Back to Products</a>
+            <Link to="/">Back to Products</Link>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default ProductDetailsView;
+}
